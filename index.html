@@ -1,0 +1,1191 @@
+
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <title>Sentinel PRO</title>
+        <style>
+            body { font-family: 'Segoe UI', Arial, sans-serif; background: #111; color: #fff; margin: 0; padding: 100px 15px 80px 15px; min-height: 100vh; box-sizing: border-box; }
+            
+            header { position: fixed; top: 0; left: 0; width: 100%; height: 70px; background: #1a1a1a; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.7); z-index: 50; box-sizing: border-box; }
+            .logo { font-size: 22px; font-weight: bold; color: #0088cc; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+            
+            .header-right { display: flex; align-items: center; gap: 15px; }
+            .search-box { position: relative; width: 300px; }
+            .search-box input { width: 100%; padding: 10px 15px; background: #2a2a2a; border: 1px solid #444; border-radius: 20px; color: #fff; font-size: 14px; outline: none; transition: border 0.2s; box-sizing: border-box; }
+            .search-box input:focus { border-color: #0088cc; background: #333; }
+            
+            .telegram-actions { display: flex; gap: 10px; }
+            .tg-link-btn { display: flex; align-items: center; gap: 8px; background: #229ED9; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; transition: background 0.2s, transform 0.1s; border: none; cursor: pointer; white-space: nowrap; }
+            .tg-link-btn:hover { background: #1c82b3; transform: scale(1.02); }
+            .tg-link-btn svg { width: 16px; height: 16px; fill: white; }
+            .tg-demand-btn { background: #0088cc; }
+            .tg-demand-btn:hover { background: #006699; }
+            
+            footer { position: fixed; bottom: 0; left: 0; width: 100%; height: 50px; background: #1a1a1a; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #666; border-top: 1px solid #252525; z-index: 50; }
+            footer span { color: #0088cc; font-weight: bold; }
+
+            .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; max-width: 1400px; margin: 0 auto; }
+            
+            @media (max-width: 850px) {
+                header { padding: 12px 15px; height: auto; flex-direction: column; justify-content: center; gap: 12px; position: absolute; }
+                .header-right { flex-direction: column; width: 100%; gap: 10px; }
+                .search-box { width: 100%; }
+                .telegram-actions { width: 100%; justify-content: space-between; }
+                .tg-link-btn { flex: 1; justify-content: center; font-size: 12px; padding: 10px; }
+                body { padding-top: 190px; padding-bottom: 70px; }
+                .grid { grid-template-columns: 1fr; }
+            }
+            
+            .card { background: #1e1e1e; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; flex-direction: column; transition: transform 0.2s; }
+            .card-serie { cursor: pointer; }
+            .card img { width: 100%; height: 320px; object-fit: cover; background: #000; }
+            
+            @media (max-width: 480px) {
+                .card img { height: 380px; }
+            }
+            
+            .card-info { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; }
+            h3 { margin: 0 0 8px 0; font-size: 14px; color: #fff; line-height: 1.3; }
+            .badge { display: inline-block; font-size: 11px; padding: 3px 6px; border-radius: 4px; font-weight: bold; width: fit-content; margin-bottom: 10px; }
+            .badge-film { background: #e50914; }
+            .badge-serie { background: #0088cc; }
+            
+            .seasons-container { margin-bottom: 15px; flex-grow: 1; border-top: 1px solid #333; padding-top: 10px; }
+            .season-tag { display: inline-block; font-size: 11px; background: #333; color: #ddd; padding: 2px 6px; border-radius: 3px; margin-right: 4px; margin-bottom: 4px; font-weight: 500; }
+            
+            .details-list { font-size: 11px; color: #aaa; margin-bottom: 15px; line-height: 1.6; border-top: 1px solid #333; padding-top: 10px; flex-grow: 1; }
+            .details-list div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+            
+            .btn { display: block; text-align: center; background: #0088cc; color: white; text-decoration: none; padding: 12px; border-radius: 6px; font-size: 14px; font-weight: bold; border: none; width: 100%; cursor: pointer; box-sizing: border-box; margin-top: auto; -webkit-tap-highlight-color: transparent; }
+            .btn:hover { background: #006699; }
+            
+            .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center; }
+            .modal-content { background: #1e1e1e; padding: 20px; border-radius: 10px; width: 92%; max-width: 650px; max-height: 85vh; overflow-y: auto; box-shadow: 0 5px 20px rgba(0,0,0,0.6); position: relative; box-sizing: border-box; }
+            
+            @media (max-width: 480px) {
+                .modal-content { width: 95%; max-height: 90vh; padding: 15px; }
+                .modal h2 { font-size: 18px; margin-right: 25px; }
+            }
+            
+            .close-btn { position: absolute; top: 12px; right: 15px; font-size: 32px; color: #aaa; cursor: pointer; line-height: 1; }
+            .close-btn:hover { color: #fff; }
+            .modal h2 { color: #0088cc; margin-top: 0; margin-bottom: 20px; font-size: 22px; word-wrap: break-word; }
+            
+            .episode-block { background: #282828; border-radius: 6px; padding: 12px; margin-bottom: 12px; border-left: 4px solid #0088cc; }
+            .episode-title-main { font-size: 13px; font-weight: bold; color: #fff; line-height: 1.4; word-break: break-word; }
+        </style>
+    </head>
+    <body>
+
+        <header>
+            <div class="logo">🛡️ Sentinel <span>PRO</span></div>
+            <div class="header-right">
+                <div class="search-box">
+                    <input type="text" id="searchInput" oninput="filtrerMedias()" placeholder="Rechercher un film ou une série...">
+                </div>
+                <div class="telegram-actions">
+                    <a href="https://t.me/+mRi9IaKjikpiODRh" target="_blank" class="tg-link-btn">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-1-.65-.35-1 .22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.24-5.54 3.65-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.97-.74 3.79-1.65 6.32-2.73 7.57-3.25 3.61-1.49 4.36-1.75 4.85-1.76.11 0 .35.03.51.16.13.12.17.28.19.39-.01.07.01.21 0 .28z"/></svg>
+                        Canal Officiel
+                    </a>
+                    <a href="https://t.me/+Tx2HI0K3yFKmfZOq" target="_blank" class="tg-link-btn tg-demand-btn">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-1-.65-.35-1 .22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.24-5.54 3.65-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.97-.74 3.79-1.65 6.32-2.73 7.57-3.25 3.61-1.49 4.36-1.75 4.85-1.76.11 0 .35.03.51.16.13.12.17.28.19.39-.01.07.01.21 0 .28z"/></svg>
+                        Demandes
+                    </a>
+                </div>
+            </div>
+        </header>
+        
+        <div class="grid" id="mediaGrid">
+            
+            <div class="card card-serie" onclick="ouvrirPopup(0)" data-title="bon cop bad cop bon cop, bad cop">
+                <img src="https://image.tmdb.org/t/p/w500/jIHmjvF0mnW3KhV2stZaoABAiLJ.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Bon Cop, Bad Cop</h3>
+                    <p class="badge badge-serie">Série (1 ép.)</p>
+                    
+                    <div class="seasons-container">
+                        <span style="font-size: 11px; color: #888; display:block; margin-bottom: 5px;">📅 Dispo :</span>
+                        <span class="season-tag">Saison 01</span> 
+                    </div>
+
+                    <button class="btn btn-serie">👁️ Voir les épisodes</button>
+                </div>
+            </div>
+            
+            <div class="card" data-title="charlies angels full throttle 2003 multi vff 1080p webrip 10 bits charlie's angels : les anges se déchaînent">
+                <img src="https://image.tmdb.org/t/p/w500/5SvARie1KlSGFERyIwEud29aa7q.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Charlies Angels Full Throttle 2003 MULTi VFF 1080p WEBRip 10 bits</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Charlies Angels Full Throttle 2003 MULTi VFF 1080p WEBRip 10 bits</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Charlie's Angels : Les Anges se déchaînent</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : 2003 MULTi VFF 1080p WEBRip 10 bits</div>
+                    </div>
+                    <a class="btn" href="/download/8498">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="companion 2025 multi ad 1080p web x264-thesyndicate companion">
+                <img src="https://image.tmdb.org/t/p/w500/gLXGCPOSm8qU5awxfDl1ztKoZXY.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Companion 2025 MULTi AD 1080p WEB x264-THESYNDiCATE</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Companion 2025 MULTi AD 1080p WEB x264-THESYNDiCATE</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Companion</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : 2025 MULTi AD 1080p WEB x264-THESYNDiCATE</div>
+                    </div>
+                    <a class="btn" href="/download/8508">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="enemy of the state 1999 french dvdrip x264c ac3-tat ennemi d'état">
+                <img src="https://image.tmdb.org/t/p/w500/f54SeNHQuomrG73jmuq1yRBsm8D.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Enemy Of The State 1999 FRENCH DVDRip x264C AC3-TAT</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Enemy Of The State 1999 FRENCH DVDRip x264C AC3-TAT</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Ennemi d'état</div>
+                        <div>📺 Résolution : Inconnue</div>
+                        <div>🌐 Langue : FRENCH</div>
+                        <div>⚙️ Tech : 1999 FRENCH DVDRip x264C AC3-TAT</div>
+                    </div>
+                    <a class="btn" href="/download/8378">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="f1 formula one le mag 07 06 2026 vff 1080p webrip aac 2 0 x264 dn55 f1 formula one le mag 07 06">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>F1 Formula One Le Mag 07 06 2026 VFF 1080p WEBRip AAC 2 0 x264 DN55</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 F1 Formula One Le Mag 07 06 2026 VFF 1080p WEBRip AAC 2 0 x264 DN55</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 F1 Formula One Le Mag 07 06</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : Français (VFF)</div>
+                        <div>⚙️ Tech : 2026 VFF 1080p WEBRip AAC 2 0 x264 DN55</div>
+                    </div>
+                    <a class="btn" href="/download/8381">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="f1 la grille gp monaco partie 1 07 06 2026 vff 1080p webrip aac f1 la grille gp monaco partie 1 07 06">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>F1 La Grille GP Monaco Partie 1 07 06 2026 VFF 1080p WEBRip AAC</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 F1 La Grille GP Monaco Partie 1 07 06 2026 VFF 1080p WEBRip AAC</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 F1 La Grille GP Monaco Partie 1 07 06</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : Français (VFF)</div>
+                        <div>⚙️ Tech : 2026 VFF 1080p WEBRip AAC</div>
+                    </div>
+                    <a class="btn" href="/download/8497">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="f1 le podium gp monaco 07 06 2026 vff 1080p webrip aac 2 0 x264 f1 le podium gp monaco 07 06">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>F1 Le Podium GP Monaco 07 06 2026 VFF 1080p WEBRip AAC 2 0 x264</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 F1 Le Podium GP Monaco 07 06 2026 VFF 1080p WEBRip AAC 2 0 x264</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 F1 Le Podium GP Monaco 07 06</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : Français (VFF)</div>
+                        <div>⚙️ Tech : 2026 VFF 1080p WEBRip AAC 2 0 x264</div>
+                    </div>
+                    <a class="btn" href="/download/8382">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="f1 on board gp monaco 11 06 2026 vff 1080p webrip aac 2 0 x264 dn55 f1 on board gp monaco 11 06">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>F1 On Board GP Monaco 11 06 2026 VFF 1080p WEBRip AAC 2 0 x264 DN55</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 F1 On Board GP Monaco 11 06 2026 VFF 1080p WEBRip AAC 2 0 x264 DN55</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 F1 On Board GP Monaco 11 06</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : Français (VFF)</div>
+                        <div>⚙️ Tech : 2026 VFF 1080p WEBRip AAC 2 0 x264 DN55</div>
+                    </div>
+                    <a class="btn" href="/download/8496">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card card-serie" onclick="ouvrirPopup(8)" data-title="fallout fallout">
+                <img src="https://image.tmdb.org/t/p/w500/eyG7Rb6r4oIYQR07qUVq0gJ2gDj.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Fallout</h3>
+                    <p class="badge badge-serie">Série (5 ép.)</p>
+                    
+                    <div class="seasons-container">
+                        <span style="font-size: 11px; color: #888; display:block; margin-bottom: 5px;">📅 Dispo :</span>
+                        <span class="season-tag">Saison 02</span> 
+                    </div>
+
+                    <button class="btn btn-serie">👁️ Voir les épisodes</button>
+                </div>
+            </div>
+            
+            <div class="card card-serie" onclick="ouvrirPopup(9)" data-title="from from">
+                <img src="https://image.tmdb.org/t/p/w500/ubZpbtVOZJulIiqYWOPUl5DvaBY.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>FROM</h3>
+                    <p class="badge badge-serie">Série (1 ép.)</p>
+                    
+                    <div class="seasons-container">
+                        <span style="font-size: 11px; color: #888; display:block; margin-bottom: 5px;">📅 Dispo :</span>
+                        <span class="season-tag">Saison 04</span> 
+                    </div>
+
+                    <button class="btn btn-serie">👁️ Voir les épisodes</button>
+                </div>
+            </div>
+            
+            <div class="card" data-title="goat 2026 multi vff 1080p 10bit bluray x265 ddp 5 1-kth goat : rêver plus haut">
+                <img src="https://image.tmdb.org/t/p/w500/9wwbYnU3HfAYqdjbFMhy2a8HYvr.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Goat 2026 MULTi VFF 1080p 10bit BluRay x265 DDP 5 1-KTH</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Goat 2026 MULTi VFF 1080p 10bit BluRay x265 DDP 5 1-KTH</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 GOAT : Rêver plus haut</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : 2026 MULTi VFF 1080p 10bit BluRay x265 DDP 5 1-KTH</div>
+                    </div>
+                    <a class="btn" href="/download/8525">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="goat 2026 vff 1080p bluray mhd x264 ac3-romkent goat : rêver plus haut">
+                <img src="https://image.tmdb.org/t/p/w500/9wwbYnU3HfAYqdjbFMhy2a8HYvr.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>GOAT 2026 VFF 1080p BluRay mHD x264 AC3-ROMKENT</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 GOAT 2026 VFF 1080p BluRay mHD x264 AC3-ROMKENT</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 GOAT : Rêver plus haut</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : Français (VFF)</div>
+                        <div>⚙️ Tech : 2026 VFF 1080p BluRay mHD x264 AC3-ROMKENT</div>
+                    </div>
+                    <a class="btn" href="/download/8517">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="harry potter 1 harry potter à l'ecole des sorciers fr en extended harry potter 1 harry potter à l'ecole des sorciers fr en extended">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Harry Potter 1 Harry Potter à l'Ecole des Sorciers FR EN EXTENDED</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Harry Potter 1 Harry Potter à l'Ecole des Sorciers FR EN EXTENDED</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Harry Potter 1 Harry Potter à l'Ecole des Sorciers FR EN EXTENDED</div>
+                        <div>📺 Résolution : Inconnue</div>
+                        <div>🌐 Langue : Inconnu</div>
+                        <div>⚙️ Tech : Harry Potter 1 Harry Potter à l'Ecole des Sorciers FR EN EXTENDED</div>
+                    </div>
+                    <a class="btn" href="/download/8470">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="harry potter 2 harry potter et la chambre des secrets fr en extended harry potter et la chambre des secrets">
+                <img src="https://image.tmdb.org/t/p/w500/8KpHRokGpiaqEGpjYe0rpywtvUx.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Harry Potter 2 Harry Potter et la Chambre des Secrets FR EN EXTENDED</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Harry Potter 2 Harry Potter et la Chambre des Secrets FR EN EXTENDED</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Harry Potter et la Chambre des secrets</div>
+                        <div>📺 Résolution : Inconnue</div>
+                        <div>🌐 Langue : Inconnu</div>
+                        <div>⚙️ Tech : Harry Potter 2 Harry Potter et la Chambre des Secrets FR EN EXTENDED</div>
+                    </div>
+                    <a class="btn" href="/download/8471">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="harry potter 3 harry potter et le prisonnier d'azkaban fr en 2004 harry potter et le prisonnier d'azkaban">
+                <img src="https://image.tmdb.org/t/p/w500/t4P2079IyK19njHDP2GwQrKdvzd.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Harry Potter 3 Harry Potter et le Prisonnier d'Azkaban FR EN 2004</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Harry Potter 3 Harry Potter et le Prisonnier d'Azkaban FR EN 2004</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Harry Potter et le Prisonnier d'Azkaban</div>
+                        <div>📺 Résolution : Inconnue</div>
+                        <div>🌐 Langue : Inconnu</div>
+                        <div>⚙️ Tech : 2004</div>
+                    </div>
+                    <a class="btn" href="/download/8472">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="harry potter 4 harry potter et la coupe de feu fr en 2005 harry potter et la coupe de feu">
+                <img src="https://image.tmdb.org/t/p/w500/hBak1pn5pbI4ycAbrgMMn1YI7P1.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Harry Potter 4 Harry Potter et la Coupe de Feu FR EN 2005</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Harry Potter 4 Harry Potter et la Coupe de Feu FR EN 2005</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Harry Potter et la Coupe de feu</div>
+                        <div>📺 Résolution : Inconnue</div>
+                        <div>🌐 Langue : Inconnu</div>
+                        <div>⚙️ Tech : 2005</div>
+                    </div>
+                    <a class="btn" href="/download/8473">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="harry potter 5 harry potter et l'ordre du phénix fr en 2007 harry potter et l'ordre du phénix">
+                <img src="https://image.tmdb.org/t/p/w500/9ZfpCVNx0y8jpColnnfdA1HI4Zb.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Harry Potter 5 Harry Potter et l'Ordre du Phénix FR EN 2007</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Harry Potter 5 Harry Potter et l'Ordre du Phénix FR EN 2007</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Harry Potter et l'Ordre du Phénix</div>
+                        <div>📺 Résolution : Inconnue</div>
+                        <div>🌐 Langue : Inconnu</div>
+                        <div>⚙️ Tech : 2007</div>
+                    </div>
+                    <a class="btn" href="/download/8474">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="harry potter 6 harry potter et le prince de sang mêlé fr en 2009 harry potter et le prince de sang-mêlé">
+                <img src="https://image.tmdb.org/t/p/w500/A4WWOzWUASfUeESXxduQxVmoD7t.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Harry Potter 6 Harry Potter et le Prince de sang mêlé FR EN 2009</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Harry Potter 6 Harry Potter et le Prince de sang mêlé FR EN 2009</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Harry Potter et le Prince de sang-mêlé</div>
+                        <div>📺 Résolution : Inconnue</div>
+                        <div>🌐 Langue : Inconnu</div>
+                        <div>⚙️ Tech : 2009</div>
+                    </div>
+                    <a class="btn" href="/download/8475">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="harry potter 7 harry potter et les reliques de la mort partie 1 harry potter et les reliques de la mort - 1ère partie">
+                <img src="https://image.tmdb.org/t/p/w500/yJm61MmTMjOmNXxPxdoaIkdqnOm.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Harry Potter 7 Harry Potter et les Reliques de la Mort Partie 1</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Harry Potter 7 Harry Potter et les Reliques de la Mort Partie 1</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Harry Potter et les Reliques de la Mort - 1ère partie</div>
+                        <div>📺 Résolution : Inconnue</div>
+                        <div>🌐 Langue : Inconnu</div>
+                        <div>⚙️ Tech : Harry Potter 7 Harry Potter et les Reliques de la Mort Partie 1</div>
+                    </div>
+                    <a class="btn" href="/download/8476">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="harry potter 8 harry potter et les reliques de la mort partie 2 harry potter et les reliques de la mort - 2ème partie">
+                <img src="https://image.tmdb.org/t/p/w500/alQOPmKEPHkH4BLMEla1vTNYrUr.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Harry Potter 8 Harry Potter et les Reliques de la Mort Partie 2</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Harry Potter 8 Harry Potter et les Reliques de la Mort Partie 2</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Harry Potter et les Reliques de la Mort - 2ème partie</div>
+                        <div>📺 Résolution : Inconnue</div>
+                        <div>🌐 Langue : Inconnu</div>
+                        <div>⚙️ Tech : Harry Potter 8 Harry Potter et les Reliques de la Mort Partie 2</div>
+                    </div>
+                    <a class="btn" href="/download/8477">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card card-serie" onclick="ouvrirPopup(20)" data-title="histoires paranormales histoires paranormales">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Histoires paranormales</h3>
+                    <p class="badge badge-serie">Série (7 ép.)</p>
+                    
+                    <div class="seasons-container">
+                        <span style="font-size: 11px; color: #888; display:block; margin-bottom: 5px;">📅 Dispo :</span>
+                        <span class="season-tag">Saison 01</span> 
+                    </div>
+
+                    <button class="btn btn-serie">👁️ Voir les épisodes</button>
+                </div>
+            </div>
+            
+            <div class="card card-serie" onclick="ouvrirPopup(21)" data-title="histoires paranormales - histoires paranormales -">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Histoires paranormales -</h3>
+                    <p class="badge badge-serie">Série (1 ép.)</p>
+                    
+                    <div class="seasons-container">
+                        <span style="font-size: 11px; color: #888; display:block; margin-bottom: 5px;">📅 Dispo :</span>
+                        <span class="season-tag">Saison 01</span> 
+                    </div>
+
+                    <button class="btn btn-serie">👁️ Voir les épisodes</button>
+                </div>
+            </div>
+            
+            <div class="card" data-title="i love peru 2025 french ad 1080p web x264-thesyndicate i love peru">
+                <img src="https://image.tmdb.org/t/p/w500/8KMfH8AqCrfg7nK1jcP7LoBOMZh.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>I Love Peru 2025 FRENCH AD 1080p WEB x264-THESYNDiCATE</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 I Love Peru 2025 FRENCH AD 1080p WEB x264-THESYNDiCATE</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 I Love Peru</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : FRENCH</div>
+                        <div>⚙️ Tech : 2025 FRENCH AD 1080p WEB x264-THESYNDiCATE</div>
+                    </div>
+                    <a class="btn" href="/download/8509">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="ice fall 2025 multi 1080p webrip av1-tweetyzip4all ice fall">
+                <img src="https://image.tmdb.org/t/p/w500/5Byv6nznAb2Izd0gHpODOXnuSbo.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Ice Fall 2025 MULTi 1080p WEBRIP AV1-TweetyZip4all</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Ice Fall 2025 MULTi 1080p WEBRIP AV1-TweetyZip4all</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Ice Fall</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : 2025 MULTi 1080p WEBRIP AV1-TweetyZip4all</div>
+                    </div>
+                    <a class="btn" href="/download/8511">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="invincible 2022 french 1080p hdtv x264-notag invincible">
+                <img src="https://image.tmdb.org/t/p/w500/oss3pdMXDh9kwoCD9YEqv0hZ1vq.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Invincible 2022 FRENCH 1080p HDTV x264-NoTag</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Invincible 2022 FRENCH 1080p HDTV x264-NoTag</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Invincible</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : FRENCH</div>
+                        <div>⚙️ Tech : 2022 FRENCH 1080p HDTV x264-NoTag</div>
+                    </div>
+                    <a class="btn" href="/download/8494">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="its a wonderful knife 2023 multi 1080p web h265-tyhd un noël sans fin">
+                <img src="https://image.tmdb.org/t/p/w500/bItJW60f2JZ0otXxK1rKG5aW8Ky.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Its a Wonderful Knife 2023 MULTi 1080p WEB H265-TyHD</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Its a Wonderful Knife 2023 MULTi 1080p WEB H265-TyHD</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Un Noël sans fin</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : 2023 MULTi 1080p WEB H265-TyHD</div>
+                    </div>
+                    <a class="btn" href="/download/8499">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="jigokuraku e01 multi 1080p web x264-amb3r jigokuraku e01">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Jigokuraku E01 MULTi 1080p WEB x264-AMB3R</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Jigokuraku E01 MULTi 1080p WEB x264-AMB3R</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Jigokuraku E01</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : MULTi 1080p WEB x264-AMB3R</div>
+                    </div>
+                    <a class="btn" href="/download/8478">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="jigokuraku e02 multi 1080p web x264-amb3r jigokuraku e02">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Jigokuraku E02 MULTi 1080p WEB x264-AMB3R</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Jigokuraku E02 MULTi 1080p WEB x264-AMB3R</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Jigokuraku E02</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : MULTi 1080p WEB x264-AMB3R</div>
+                    </div>
+                    <a class="btn" href="/download/8479">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="jigokuraku e03 multi 1080p web x264-amb3r jigokuraku e03">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Jigokuraku E03 MULTi 1080p WEB x264-AMB3R</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Jigokuraku E03 MULTi 1080p WEB x264-AMB3R</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Jigokuraku E03</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : MULTi 1080p WEB x264-AMB3R</div>
+                    </div>
+                    <a class="btn" href="/download/8480">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="jigokuraku e04 multi 1080p web x264-amb3r jigokuraku e04">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Jigokuraku E04 MULTi 1080p WEB x264-AMB3R</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Jigokuraku E04 MULTi 1080p WEB x264-AMB3R</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Jigokuraku E04</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : MULTi 1080p WEB x264-AMB3R</div>
+                    </div>
+                    <a class="btn" href="/download/8481">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="jigokuraku e05 multi 1080p web x264-amb3r jigokuraku e05">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Jigokuraku E05 MULTi 1080p WEB x264-AMB3R</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Jigokuraku E05 MULTi 1080p WEB x264-AMB3R</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Jigokuraku E05</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : MULTi 1080p WEB x264-AMB3R</div>
+                    </div>
+                    <a class="btn" href="/download/8482">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="jigokuraku e06 multi 1080p web x264-amb3r jigokuraku e06">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Jigokuraku E06 MULTi 1080p WEB x264-AMB3R</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Jigokuraku E06 MULTi 1080p WEB x264-AMB3R</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Jigokuraku E06</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : MULTi 1080p WEB x264-AMB3R</div>
+                    </div>
+                    <a class="btn" href="/download/8483">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="jigokuraku e07 multi 1080p web x264-amb3r jigokuraku e07">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Jigokuraku E07 MULTi 1080p WEB x264-AMB3R</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Jigokuraku E07 MULTi 1080p WEB x264-AMB3R</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Jigokuraku E07</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : MULTi 1080p WEB x264-AMB3R</div>
+                    </div>
+                    <a class="btn" href="/download/8484">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="jigokuraku e08 multi 1080p web x264-amb3r jigokuraku e08">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Jigokuraku E08 MULTi 1080p WEB x264-AMB3R</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Jigokuraku E08 MULTi 1080p WEB x264-AMB3R</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Jigokuraku E08</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : MULTi 1080p WEB x264-AMB3R</div>
+                    </div>
+                    <a class="btn" href="/download/8485">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="jigokuraku e09 multi 1080p web x264-amb3r jigokuraku e09">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Jigokuraku E09 MULTi 1080p WEB x264-AMB3R</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Jigokuraku E09 MULTi 1080p WEB x264-AMB3R</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Jigokuraku E09</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : MULTi 1080p WEB x264-AMB3R</div>
+                    </div>
+                    <a class="btn" href="/download/8486">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="jigokuraku e10 multi 1080p web x264-amb3r jigokuraku e10">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Jigokuraku E10 MULTi 1080p WEB x264-AMB3R</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Jigokuraku E10 MULTi 1080p WEB x264-AMB3R</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Jigokuraku E10</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : MULTi 1080p WEB x264-AMB3R</div>
+                    </div>
+                    <a class="btn" href="/download/8488">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="jigokuraku e11 multi 1080p web x264-amb3r jigokuraku e11">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Jigokuraku E11 MULTi 1080p WEB x264-AMB3R</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Jigokuraku E11 MULTi 1080p WEB x264-AMB3R</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Jigokuraku E11</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : MULTi 1080p WEB x264-AMB3R</div>
+                    </div>
+                    <a class="btn" href="/download/8489">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="jigokuraku e12 multi 1080p web x264-amb3r jigokuraku e12">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Jigokuraku E12 MULTi 1080p WEB x264-AMB3R</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Jigokuraku E12 MULTi 1080p WEB x264-AMB3R</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Jigokuraku E12</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : MULTi 1080p WEB x264-AMB3R</div>
+                    </div>
+                    <a class="btn" href="/download/8490">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="jigokuraku e13 final multi 1080p web x264-amb3r jigokuraku e13 final">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Jigokuraku E13 FiNAL MULTi 1080p WEB x264-AMB3R</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Jigokuraku E13 FiNAL MULTi 1080p WEB x264-AMB3R</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Jigokuraku E13 FiNAL</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : MULTi 1080p WEB x264-AMB3R</div>
+                    </div>
+                    <a class="btn" href="/download/8491">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="l homme qui retrecit 2025 2160p webrip hdr10plus eac3 5 1 atmos l'homme qui rétrécit">
+                <img src="https://image.tmdb.org/t/p/w500/xfkQnNFPFP5ITUQ1rCt6rYtnzLH.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>L homme Qui Retrecit 2025 2160p WEBrip HDR10plus EAC3 5 1 Atmos</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 L homme Qui Retrecit 2025 2160p WEBrip HDR10plus EAC3 5 1 Atmos</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 L'Homme qui rétrécit</div>
+                        <div>📺 Résolution : 2160P</div>
+                        <div>🌐 Langue : Inconnu</div>
+                        <div>⚙️ Tech : 2025 2160p WEBrip HDR10plus EAC3 5 1 Atmos</div>
+                    </div>
+                    <a class="btn" href="/download/8513">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="les enfants vont bien 2025 french ad 1080p web sdr h265 thesyndicate les enfants vont bien">
+                <img src="https://image.tmdb.org/t/p/w500/lzHohlKAZ8qG0WbkctJq02ZB3lJ.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Les enfants vont bien 2025 FRENCH AD 1080p WEB SDR H265 THESYNDiCATE</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Les enfants vont bien 2025 FRENCH AD 1080p WEB SDR H265 THESYNDiCATE</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Les enfants vont bien</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : FRENCH</div>
+                        <div>⚙️ Tech : 2025 FRENCH AD 1080p WEB SDR H265 THESYNDiCATE</div>
+                    </div>
+                    <a class="btn" href="/download/8514">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="luis und die aliens 2018 french ad 1080p web h265-tyhd léo et les extraterrestres">
+                <img src="https://image.tmdb.org/t/p/w500/dw9vSaVjVVib6RLgxEr7Hc76Wwk.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Luis Und Die Aliens 2018 FRENCH AD 1080p WEB H265-TyHD</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Luis Und Die Aliens 2018 FRENCH AD 1080p WEB H265-TyHD</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Léo et les Extraterrestres</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : FRENCH</div>
+                        <div>⚙️ Tech : 2018 FRENCH AD 1080p WEB H265-TyHD</div>
+                    </div>
+                    <a class="btn" href="/download/8500">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card card-serie" onclick="ouvrirPopup(42)" data-title="mary kills people mary kills people">
+                <img src="https://image.tmdb.org/t/p/w500/4zOZzlSjHjUJgc2Gp20iFfpkRBV.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Mary Kills People</h3>
+                    <p class="badge badge-serie">Série (18 ép.)</p>
+                    
+                    <div class="seasons-container">
+                        <span style="font-size: 11px; color: #888; display:block; margin-bottom: 5px;">📅 Dispo :</span>
+                        <span class="season-tag">Saison 01</span> <span class="season-tag">Saison 02</span> <span class="season-tag">Saison 03</span> 
+                    </div>
+
+                    <button class="btn btn-serie">👁️ Voir les épisodes</button>
+                </div>
+            </div>
+            
+            <div class="card" data-title="michael 2026 multi 1080p it web x265 dd5 1-symbi0t3 michael">
+                <img src="https://image.tmdb.org/t/p/w500/2sDgNilJGVFpl1x4DMzYHjk0L0f.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Michael 2026 MULTi 1080p iT WEB x265 DD5 1-SYMBi0T3</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Michael 2026 MULTi 1080p iT WEB x265 DD5 1-SYMBi0T3</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Michael</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : 2026 MULTi 1080p iT WEB x265 DD5 1-SYMBi0T3</div>
+                    </div>
+                    <a class="btn" href="/download/8492">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="michael 2026 french vff 1080p webrip av1 eac3 5 1 monodisc tt11378946 michael">
+                <img src="https://image.tmdb.org/t/p/w500/2sDgNilJGVFpl1x4DMzYHjk0L0f.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Michael 2026 FRENCH VFF 1080p WEBRip AV1 EAC3 5 1 MonoDiSC tt11378946</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Michael 2026 FRENCH VFF 1080p WEBRip AV1 EAC3 5 1 MonoDiSC tt11378946</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Michael</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : FRENCH</div>
+                        <div>⚙️ Tech : 2026 FRENCH VFF 1080p WEBRip AV1 EAC3 5 1 MonoDiSC tt11378946</div>
+                    </div>
+                    <a class="btn" href="/download/8431">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="michael 2026 multi chose1 1080p webrip ddp5 1 atmos hevc psa batgirl michael">
+                <img src="https://image.tmdb.org/t/p/w500/2sDgNilJGVFpl1x4DMzYHjk0L0f.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Michael 2026 MULTi chose1 1080p WEBRip DDP5 1 Atmos HEVC PSA BATGirl</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Michael 2026 MULTi chose1 1080p WEBRip DDP5 1 Atmos HEVC PSA BATGirl</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Michael</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : 2026 MULTi chose1 1080p WEBRip DDP5 1 Atmos HEVC PSA BATGirl</div>
+                    </div>
+                    <a class="btn" href="/download/8428">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="michael jackson les derniers secrets du roi de la pop 1080p webrip michael jackson : les derniers secrets du roi de la pop">
+                <img src="https://image.tmdb.org/t/p/w500/5vv7G1ckFvMNoL8bkoIGtAHht84.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Michael Jackson les derniers secrets du roi de la pop 1080p WEBRip</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Michael Jackson les derniers secrets du roi de la pop 1080p WEBRip</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Michael Jackson : Les derniers secrets du roi de la Pop</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : Inconnu</div>
+                        <div>⚙️ Tech : 1080p WEBRip</div>
+                    </div>
+                    <a class="btn" href="/download/8515">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="mission impossible 6 (2018) fallout-tt4912910 mission impossible 6 (2018) fallout-tt4912910">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Mission Impossible 6 (2018) Fallout-tt4912910</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Mission Impossible 6 (2018) Fallout-tt4912910</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Mission Impossible 6 (2018) Fallout-tt4912910</div>
+                        <div>📺 Résolution : Inconnue</div>
+                        <div>🌐 Langue : Inconnu</div>
+                        <div>⚙️ Tech : Mission Impossible 6 (2018) Fallout-tt4912910</div>
+                    </div>
+                    <a class="btn" href="/download/8430">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card card-serie" onclick="ouvrirPopup(48)" data-title="plan b plan b">
+                <img src="https://image.tmdb.org/t/p/w500/jP81t2WwpQVLZ8dqPJSPvH0r79z.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Plan B</h3>
+                    <p class="badge badge-serie">Série (3 ép.)</p>
+                    
+                    <div class="seasons-container">
+                        <span style="font-size: 11px; color: #888; display:block; margin-bottom: 5px;">📅 Dispo :</span>
+                        <span class="season-tag">Saison 05</span> 
+                    </div>
+
+                    <button class="btn btn-serie">👁️ Voir les épisodes</button>
+                </div>
+            </div>
+            
+            <div class="card" data-title="regretting you 2025 multi 1080p web x264-thesyndicate regretting you">
+                <img src="https://image.tmdb.org/t/p/w500/tulNImprvr3I3vUSrvSExbdaXgN.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Regretting You 2025 MULTi 1080p WEB x264-THESYNDiCATE</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Regretting You 2025 MULTi 1080p WEB x264-THESYNDiCATE</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Regretting You</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : 2025 MULTi 1080p WEB x264-THESYNDiCATE</div>
+                    </div>
+                    <a class="btn" href="/download/8516">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="shelter 2026 multi 1080p amzn web-dl av1-thesyndicate shelter">
+                <img src="https://image.tmdb.org/t/p/w500/qybHIG4px6546LKgSdPiyEdbDiK.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Shelter 2026 MULTi 1080p AMZN WEB-DL AV1-THESYNDiCATE</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Shelter 2026 MULTi 1080p AMZN WEB-DL AV1-THESYNDiCATE</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Shelter</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : 2026 MULTi 1080p AMZN WEB-DL AV1-THESYNDiCATE</div>
+                    </div>
+                    <a class="btn" href="/download/8524">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="superman ii 1980 multi vff 1080p bluray hdlight ac3 1 0 x264 mhdgz superman ii">
+                <img src="https://image.tmdb.org/t/p/w500/zYDG5YVVWHtTqCXumTt89J5Ir73.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Superman II 1980 MULTI VFF 1080p BluRay HDLight AC3 1 0 x264 mHDgz</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Superman II 1980 MULTI VFF 1080p BluRay HDLight AC3 1 0 x264 mHDgz</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Superman II</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : 1980 MULTI VFF 1080p BluRay HDLight AC3 1 0 x264 mHDgz</div>
+                    </div>
+                    <a class="btn" href="/download/8435">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="superman red son 2020 multi1080p bluray x265 ac3 5 1 tg tt10985510 superman: red son">
+                <img src="https://image.tmdb.org/t/p/w500/frSfz7olCSQsp2SmTyu2ciGGQiX.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Superman Red Son 2020 Multi1080p BluRay x265 AC3 5 1 TG tt10985510</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Superman Red Son 2020 Multi1080p BluRay x265 AC3 5 1 TG tt10985510</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Superman: Red Son</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : 2020 Multi1080p BluRay x265 AC3 5 1 TG tt10985510</div>
+                    </div>
+                    <a class="btn" href="/download/8433">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card card-serie" onclick="ouvrirPopup(53)" data-title="talking tom and friends talking tom and friends">
+                <img src="https://image.tmdb.org/t/p/w500/u6We7ht3z8bSIaUF8P7DEwopOPi.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Talking Tom and Friends</h3>
+                    <p class="badge badge-serie">Série (23 ép.)</p>
+                    
+                    <div class="seasons-container">
+                        <span style="font-size: 11px; color: #888; display:block; margin-bottom: 5px;">📅 Dispo :</span>
+                        <span class="season-tag">Saison 01</span> 
+                    </div>
+
+                    <button class="btn btn-serie">👁️ Voir les épisodes</button>
+                </div>
+            </div>
+            
+            <div class="card" data-title="talking tom and friends minisodes 2017 truefrench 1080p web x264 talking tom and friends minisodes">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Talking Tom And Friends Minisodes 2017 TRUEFRENCH 1080p WEB x264</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Talking Tom And Friends Minisodes 2017 TRUEFRENCH 1080p WEB x264</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Talking Tom And Friends Minisodes</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : Français (VFF)</div>
+                        <div>⚙️ Tech : 2017 TRUEFRENCH 1080p WEB x264</div>
+                    </div>
+                    <a class="btn" href="/download/8383">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="talking tom and friends the audition 2016 truefrench 1080p web x264 talking tom and friends the audition">
+                <img src="https://via.placeholder.com/500x750?text=Pas+d'affiche" alt="Affiche">
+                <div class="card-info">
+                    <h3>Talking Tom And Friends The Audition 2016 TRUEFRENCH 1080p WEB x264</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 Talking Tom And Friends The Audition 2016 TRUEFRENCH 1080p WEB x264</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Talking Tom And Friends The Audition</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : Français (VFF)</div>
+                        <div>⚙️ Tech : 2016 TRUEFRENCH 1080p WEB x264</div>
+                    </div>
+                    <a class="btn" href="/download/8384">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card card-serie" onclick="ouvrirPopup(56)" data-title="the evil lawyer the evil lawyer">
+                <img src="https://image.tmdb.org/t/p/w500/oLmVnnJFdHvnaGB2asEebnbE4ly.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>The Evil Lawyer</h3>
+                    <p class="badge badge-serie">Série (8 ép.)</p>
+                    
+                    <div class="seasons-container">
+                        <span style="font-size: 11px; color: #888; display:block; margin-bottom: 5px;">📅 Dispo :</span>
+                        <span class="season-tag">Saison 01</span> 
+                    </div>
+
+                    <button class="btn btn-serie">👁️ Voir les épisodes</button>
+                </div>
+            </div>
+            
+            <div class="card" data-title="the man from earth 2007 special edition multi vfi 1080p bluray eac3 the man from earth">
+                <img src="https://image.tmdb.org/t/p/w500/th9wi8T4R5iiF5ZJDgFzorIX25C.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>The Man from Earth 2007 Special Edition MULTI VFI 1080p BluRay EAC3</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 The Man from Earth 2007 Special Edition MULTI VFI 1080p BluRay EAC3</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 The Man from Earth</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : 2007 Special Edition MULTI VFI 1080p BluRay EAC3</div>
+                    </div>
+                    <a class="btn" href="/download/8495">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card" data-title="the wrecking crew 2026 multi vf2 1080p web h265-tyhd team démolition">
+                <img src="https://image.tmdb.org/t/p/w500/ec0bwYUEYBhcHutx4nIShLzX7Dl.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>The Wrecking Crew 2026 MULTi VF2 1080p WEB H265-TyHD</h3>
+                    <p class="badge badge-film">Film</p>
+                    <div class="details-list">
+                        <div>🎬 The Wrecking Crew 2026 MULTi VF2 1080p WEB H265-TyHD</div>
+                        <div>ℹ️ Film individuel</div>
+                        <div>💎 Team Démolition</div>
+                        <div>📺 Résolution : 1080P</div>
+                        <div>🌐 Langue : MULTI</div>
+                        <div>⚙️ Tech : 2026 MULTi VF2 1080p WEB H265-TyHD</div>
+                    </div>
+                    <a class="btn" href="/download/8505">📥 Télécharger</a>
+                </div>
+            </div>
+            
+            <div class="card card-serie" onclick="ouvrirPopup(59)" data-title="tracker tracker">
+                <img src="https://image.tmdb.org/t/p/w500/kNkQLlWVyt7KWZAKq0AWFJfO68Y.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Tracker</h3>
+                    <p class="badge badge-serie">Série (4 ép.)</p>
+                    
+                    <div class="seasons-container">
+                        <span style="font-size: 11px; color: #888; display:block; margin-bottom: 5px;">📅 Dispo :</span>
+                        <span class="season-tag">Saison 03</span> 
+                    </div>
+
+                    <button class="btn btn-serie">👁️ Voir les épisodes</button>
+                </div>
+            </div>
+            
+            <div class="card card-serie" onclick="ouvrirPopup(60)" data-title="viral hit viral hit">
+                <img src="https://image.tmdb.org/t/p/w500/cjy716l2l6uCCbvkkRgFReCdjYF.jpg" alt="Affiche">
+                <div class="card-info">
+                    <h3>Viral Hit</h3>
+                    <p class="badge badge-serie">Série (6 ép.)</p>
+                    
+                    <div class="seasons-container">
+                        <span style="font-size: 11px; color: #888; display:block; margin-bottom: 5px;">📅 Dispo :</span>
+                        <span class="season-tag">Saison 01</span> 
+                    </div>
+
+                    <button class="btn btn-serie">👁️ Voir les épisodes</button>
+                </div>
+            </div>
+            
+        </div>
+
+        <div id="serieModal" class="modal" onclick="fermerPopupDehors(event)">
+            <div class="modal-content">
+                <span class="close-btn" onclick="fermerPopup()">&times;</span>
+                <h2 id="modalTitle">Nom de la Série</h2>
+                <div id="modalEpisodesList"></div>
+            </div>
+        </div>
+
+        <footer>
+            © 2026 — Propulsé par &nbsp;<span>Sentinel PRO</span>
+        </footer>
+
+        <script>
+            const seriesData = {"0": {"titre_tmdb": "Bon Cop, Bad Cop", "liste_ep": [{"id": 8424, "infos": {"titre_recherche": "Bon cop Bad cop", "titre_complet": "Bon cop Bad cop S01E05 MULTi 1080p WEB H264-TRICK tt40761508", "saison_num": 1, "saison_ep": "S01E05", "resolution": "1080P", "langue": "MULTI", "reste": "S01E05 MULTi 1080p WEB H264-TRICK tt40761508"}}]}, "8": {"titre_tmdb": "Fallout", "liste_ep": [{"id": 8520, "infos": {"titre_recherche": "Fallout", "titre_complet": "Fallout S02E01 MULTi VFF 1080p WEBrip 10 bits EAC3 5 1 x265 TyHD", "saison_num": 2, "saison_ep": "S02E01", "resolution": "1080P", "langue": "MULTI", "reste": "S02E01 MULTi VFF 1080p WEBrip 10 bits EAC3 5 1 x265 TyHD"}}, {"id": 8521, "infos": {"titre_recherche": "Fallout", "titre_complet": "Fallout S02E02 MULTi VFF 1080p WEBrip 10 bits EAC3 5 1 x265 TyHD", "saison_num": 2, "saison_ep": "S02E02", "resolution": "1080P", "langue": "MULTI", "reste": "S02E02 MULTi VFF 1080p WEBrip 10 bits EAC3 5 1 x265 TyHD"}}, {"id": 8519, "infos": {"titre_recherche": "Fallout", "titre_complet": "Fallout S02E03 MULTi VFF 1080p WEBrip 10 bits EAC3 5 1 x265 TyHD", "saison_num": 2, "saison_ep": "S02E03", "resolution": "1080P", "langue": "MULTI", "reste": "S02E03 MULTi VFF 1080p WEBrip 10 bits EAC3 5 1 x265 TyHD"}}, {"id": 8522, "infos": {"titre_recherche": "Fallout", "titre_complet": "Fallout S02E04 REPACK MULTi VFF 1080p WEBrip 10 bits EAC3 5 1 x265", "saison_num": 2, "saison_ep": "S02E04", "resolution": "1080P", "langue": "MULTI", "reste": "S02E04 REPACK MULTi VFF 1080p WEBrip 10 bits EAC3 5 1 x265"}}, {"id": 8523, "infos": {"titre_recherche": "Fallout", "titre_complet": "Fallout S02E08 MULTi VFF SDR 2160p WEBrip 10 bits EAC3 5 1 Atmos", "saison_num": 2, "saison_ep": "S02E08", "resolution": "2160P", "langue": "MULTI", "reste": "S02E08 MULTi VFF SDR 2160p WEBrip 10 bits EAC3 5 1 Atmos"}}]}, "9": {"titre_tmdb": "FROM", "liste_ep": [{"id": 8512, "infos": {"titre_recherche": "From", "titre_complet": "From S04E07 Un plan imparable MULTi 1080p WEB x264 THESYNDiCATE", "saison_num": 4, "saison_ep": "S04E07", "resolution": "1080P", "langue": "MULTI", "reste": "S04E07 Un plan imparable MULTi 1080p WEB x264 THESYNDiCATE"}}]}, "20": {"titre_tmdb": "Histoires paranormales", "liste_ep": [{"id": 8526, "infos": {"titre_recherche": "Histoires paranormales", "titre_complet": "Histoires paranormales S01E01 Esprit en col\u00e8re ThibShin", "saison_num": 1, "saison_ep": "S01E01", "resolution": "Inconnue", "langue": "Inconnu", "reste": "S01E01 Esprit en col\u00e8re ThibShin"}}, {"id": 8527, "infos": {"titre_recherche": "Histoires paranormales", "titre_complet": "Histoires paranormales S01E02 Apparitions nocturnes ThibShin", "saison_num": 1, "saison_ep": "S01E02", "resolution": "Inconnue", "langue": "Inconnu", "reste": "S01E02 Apparitions nocturnes ThibShin"}}, {"id": 8529, "infos": {"titre_recherche": "Histoires paranormales", "titre_complet": "Histoires paranormales S01E04 Esprit mal\u00e9fique ThibShin", "saison_num": 1, "saison_ep": "S01E04", "resolution": "Inconnue", "langue": "Inconnu", "reste": "S01E04 Esprit mal\u00e9fique ThibShin"}}, {"id": 8530, "infos": {"titre_recherche": "Histoires paranormales", "titre_complet": "Histoires paranormales S01E05 L'ami imaginaire ThibShin", "saison_num": 1, "saison_ep": "S01E05", "resolution": "Inconnue", "langue": "Inconnu", "reste": "S01E05 L'ami imaginaire ThibShin"}}, {"id": 8531, "infos": {"titre_recherche": "Histoires paranormales", "titre_complet": "Histoires paranormales S01E06 Maisons hant\u00e9es ThibShin", "saison_num": 1, "saison_ep": "S01E06", "resolution": "Inconnue", "langue": "Inconnu", "reste": "S01E06 Maisons hant\u00e9es ThibShin"}}, {"id": 8532, "infos": {"titre_recherche": "Histoires paranormales", "titre_complet": "Histoires paranormales S01E07 Possession d\u00e9moniaque ThibShin", "saison_num": 1, "saison_ep": "S01E07", "resolution": "Inconnue", "langue": "Inconnu", "reste": "S01E07 Possession d\u00e9moniaque ThibShin"}}, {"id": 8533, "infos": {"titre_recherche": "Histoires paranormales", "titre_complet": "Histoires paranormales S01E08 Objets qui bougent ThibShin", "saison_num": 1, "saison_ep": "S01E08", "resolution": "Inconnue", "langue": "Inconnu", "reste": "S01E08 Objets qui bougent ThibShin"}}]}, "21": {"titre_tmdb": "Histoires paranormales -", "liste_ep": [{"id": 8528, "infos": {"titre_recherche": "Histoires paranormales -", "titre_complet": "Histoires paranormales - S01E03 - L'exorciste - ThibShin", "saison_num": 1, "saison_ep": "S01E03", "resolution": "Inconnue", "langue": "Inconnu", "reste": "S01E03 - L'exorciste - ThibShin"}}]}, "42": {"titre_tmdb": "Mary Kills People", "liste_ep": [{"id": 8446, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S01E01 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 1, "saison_ep": "S01E01", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S01E01 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8447, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S01E02 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 1, "saison_ep": "S01E02", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S01E02 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8448, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S01E03 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 1, "saison_ep": "S01E03", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S01E03 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8449, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S01E04 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 1, "saison_ep": "S01E04", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S01E04 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8450, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S01E05 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 1, "saison_ep": "S01E05", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S01E05 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8451, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S01E06 FINAL MULTI VFQ 1080p WEBRip h265", "saison_num": 1, "saison_ep": "S01E06", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S01E06 FINAL MULTI VFQ 1080p WEBRip h265"}}, {"id": 8452, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S02E01 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 2, "saison_ep": "S02E01", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S02E01 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8453, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S02E02 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 2, "saison_ep": "S02E02", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S02E02 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8454, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S02E03 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 2, "saison_ep": "S02E03", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S02E03 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8455, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S02E04 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 2, "saison_ep": "S02E04", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S02E04 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8456, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S02E05 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 2, "saison_ep": "S02E05", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S02E05 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8457, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S02E06 FINAL MULTI VFQ 1080p WEBRip h265", "saison_num": 2, "saison_ep": "S02E06", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S02E06 FINAL MULTI VFQ 1080p WEBRip h265"}}, {"id": 8458, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S03E01 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 3, "saison_ep": "S03E01", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S03E01 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8459, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S03E02 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 3, "saison_ep": "S03E02", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S03E02 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8460, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S03E03 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 3, "saison_ep": "S03E03", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S03E03 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8461, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S03E04 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 3, "saison_ep": "S03E04", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S03E04 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8462, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S03E05 MULTI VFQ 1080p WEBRip h265 EAC3 5", "saison_num": 3, "saison_ep": "S03E05", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S03E05 MULTI VFQ 1080p WEBRip h265 EAC3 5"}}, {"id": 8463, "infos": {"titre_recherche": "Mary Kills People", "titre_complet": "Mary Kills People 2017 S03E06 FINAL MULTI VFQ 1080p WEBRip h265", "saison_num": 3, "saison_ep": "S03E06", "resolution": "1080P", "langue": "MULTI", "reste": "2017 S03E06 FINAL MULTI VFQ 1080p WEBRip h265"}}]}, "48": {"titre_tmdb": "Plan B", "liste_ep": [{"id": 8503, "infos": {"titre_recherche": "Plan B", "titre_complet": "Plan B S05E01 VFQ 1080p WEB H264-TRICK", "saison_num": 5, "saison_ep": "S05E01", "resolution": "1080P", "langue": "Fran\u00e7ais (VF)", "reste": "S05E01 VFQ 1080p WEB H264-TRICK"}}, {"id": 8504, "infos": {"titre_recherche": "Plan B", "titre_complet": "Plan B S05E02 VFQ 1080p WEB H264-TRICK", "saison_num": 5, "saison_ep": "S05E02", "resolution": "1080P", "langue": "Fran\u00e7ais (VF)", "reste": "S05E02 VFQ 1080p WEB H264-TRICK"}}, {"id": 8502, "infos": {"titre_recherche": "Plan B", "titre_complet": "Plan B S05E03 VFQ 1080p WEB H264-TRICK", "saison_num": 5, "saison_ep": "S05E03", "resolution": "1080P", "langue": "Fran\u00e7ais (VF)", "reste": "S05E03 VFQ 1080p WEB H264-TRICK"}}]}, "53": {"titre_tmdb": "Talking Tom and Friends", "liste_ep": [{"id": 8385, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E01 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E01", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E01 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8386, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E02 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E02", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E02 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8387, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E03 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E03", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E03 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8388, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E04 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E04", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E04 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8389, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E05 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E05", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E05 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8390, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E06 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E06", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E06 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8391, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E07 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E07", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E07 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8392, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E08 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E08", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E08 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8393, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E09 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E09", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E09 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8394, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E10 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E10", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E10 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8395, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E11 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E11", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E11 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8396, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E12 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E12", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E12 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8398, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E13 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E13", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E13 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8399, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E14 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E14", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E14 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8400, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E15 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E15", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E15 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8401, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E16 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E16", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E16 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8402, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E17 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E17", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E17 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8403, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E18 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E18", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E18 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8404, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E19 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E19", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E19 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8405, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E20 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E20", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E20 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8406, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E21 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E21", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E21 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8407, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E22 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E22", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E22 TRUEFRENCH 1080p WEB x264 FTMVHD"}}, {"id": 8408, "infos": {"titre_recherche": "Talking Tom And Friends", "titre_complet": "Talking Tom And Friends S01E23 TRUEFRENCH 1080p WEB x264 FTMVHD", "saison_num": 1, "saison_ep": "S01E23", "resolution": "1080P", "langue": "Fran\u00e7ais (VFF)", "reste": "S01E23 TRUEFRENCH 1080p WEB x264 FTMVHD"}}]}, "56": {"titre_tmdb": "The Evil Lawyer", "liste_ep": [{"id": 8438, "infos": {"titre_recherche": "The Evil Lawyer", "titre_complet": "The Evil Lawyer S01E01 MULTi 1080p WEB H265-TyHD", "saison_num": 1, "saison_ep": "S01E01", "resolution": "1080P", "langue": "MULTI", "reste": "S01E01 MULTi 1080p WEB H265-TyHD"}}, {"id": 8439, "infos": {"titre_recherche": "The Evil Lawyer", "titre_complet": "The Evil Lawyer S01E02 MULTi 1080p WEB H265-TyHD", "saison_num": 1, "saison_ep": "S01E02", "resolution": "1080P", "langue": "MULTI", "reste": "S01E02 MULTi 1080p WEB H265-TyHD"}}, {"id": 8440, "infos": {"titre_recherche": "The Evil Lawyer", "titre_complet": "The Evil Lawyer S01E03 MULTi 1080p WEB H265-TyHD", "saison_num": 1, "saison_ep": "S01E03", "resolution": "1080P", "langue": "MULTI", "reste": "S01E03 MULTi 1080p WEB H265-TyHD"}}, {"id": 8441, "infos": {"titre_recherche": "The Evil Lawyer", "titre_complet": "The Evil Lawyer S01E04 MULTi 1080p WEB H265-TyHD", "saison_num": 1, "saison_ep": "S01E04", "resolution": "1080P", "langue": "MULTI", "reste": "S01E04 MULTi 1080p WEB H265-TyHD"}}, {"id": 8442, "infos": {"titre_recherche": "The Evil Lawyer", "titre_complet": "The Evil Lawyer S01E05 MULTi 1080p WEB H265-TyHD", "saison_num": 1, "saison_ep": "S01E05", "resolution": "1080P", "langue": "MULTI", "reste": "S01E05 MULTi 1080p WEB H265-TyHD"}}, {"id": 8443, "infos": {"titre_recherche": "The Evil Lawyer", "titre_complet": "The Evil Lawyer S01E06 MULTi 1080p WEB H265-TyHD", "saison_num": 1, "saison_ep": "S01E06", "resolution": "1080P", "langue": "MULTI", "reste": "S01E06 MULTi 1080p WEB H265-TyHD"}}, {"id": 8444, "infos": {"titre_recherche": "The Evil Lawyer", "titre_complet": "The Evil Lawyer S01E07 MULTi 1080p WEB H265-TyHD", "saison_num": 1, "saison_ep": "S01E07", "resolution": "1080P", "langue": "MULTI", "reste": "S01E07 MULTi 1080p WEB H265-TyHD"}}, {"id": 8445, "infos": {"titre_recherche": "The Evil Lawyer", "titre_complet": "The Evil Lawyer S01E08 MULTi 1080p WEB H265-TyHD", "saison_num": 1, "saison_ep": "S01E08", "resolution": "1080P", "langue": "MULTI", "reste": "S01E08 MULTi 1080p WEB H265-TyHD"}}]}, "59": {"titre_tmdb": "Tracker", "liste_ep": [{"id": 8429, "infos": {"titre_recherche": "Tracker", "titre_complet": "Tracker 2024 S03E18 MULTi 1080p WEBRip EAC3 5 1 x265-TyHD", "saison_num": 3, "saison_ep": "S03E18", "resolution": "1080P", "langue": "MULTI", "reste": "2024 S03E18 MULTi 1080p WEBRip EAC3 5 1 x265-TyHD"}}, {"id": 8426, "infos": {"titre_recherche": "Tracker", "titre_complet": "Tracker 2024 S03E18 MULTi VFF 1080p WEBRip EAC3 5 1 x265 TyHD", "saison_num": 3, "saison_ep": "S03E18", "resolution": "1080P", "langue": "MULTI", "reste": "2024 S03E18 MULTi VFF 1080p WEBRip EAC3 5 1 x265 TyHD"}}, {"id": 8434, "infos": {"titre_recherche": "Tracker", "titre_complet": "Tracker S03E19 MULTi VFF 1080p WEBRip EAC3 5 1 x265-TyHD", "saison_num": 3, "saison_ep": "S03E19", "resolution": "1080P", "langue": "MULTI", "reste": "S03E19 MULTi VFF 1080p WEBRip EAC3 5 1 x265-TyHD"}}, {"id": 8432, "infos": {"titre_recherche": "Tracker", "titre_complet": "Tracker 2024 S03E19 MULTi 1080p WEB H264-FW", "saison_num": 3, "saison_ep": "S03E19", "resolution": "1080P", "langue": "MULTI", "reste": "2024 S03E19 MULTi 1080p WEB H264-FW"}}]}, "60": {"titre_tmdb": "Viral Hit", "liste_ep": [{"id": 8464, "infos": {"titre_recherche": "Viral Hit", "titre_complet": "Viral Hit S01E01 MULTi 1080p WEB H265-TyHD", "saison_num": 1, "saison_ep": "S01E01", "resolution": "1080P", "langue": "MULTI", "reste": "S01E01 MULTi 1080p WEB H265-TyHD"}}, {"id": 8465, "infos": {"titre_recherche": "Viral Hit", "titre_complet": "Viral Hit S01E02 MULTi 1080p WEB H265-TyHD", "saison_num": 1, "saison_ep": "S01E02", "resolution": "1080P", "langue": "MULTI", "reste": "S01E02 MULTi 1080p WEB H265-TyHD"}}, {"id": 8466, "infos": {"titre_recherche": "Viral Hit", "titre_complet": "Viral Hit S01E03 MULTi 1080p WEB H265-TyHD", "saison_num": 1, "saison_ep": "S01E03", "resolution": "1080P", "langue": "MULTI", "reste": "S01E03 MULTi 1080p WEB H265-TyHD"}}, {"id": 8467, "infos": {"titre_recherche": "Viral Hit", "titre_complet": "Viral Hit S01E04 MULTi 1080p WEB H265-TyHD", "saison_num": 1, "saison_ep": "S01E04", "resolution": "1080P", "langue": "MULTI", "reste": "S01E04 MULTi 1080p WEB H265-TyHD"}}, {"id": 8468, "infos": {"titre_recherche": "Viral Hit", "titre_complet": "Viral Hit S01E05 MULTi 1080p WEB H265-TyHD", "saison_num": 1, "saison_ep": "S01E05", "resolution": "1080P", "langue": "MULTI", "reste": "S01E05 MULTi 1080p WEB H265-TyHD"}}, {"id": 8469, "infos": {"titre_recherche": "Viral Hit", "titre_complet": "Viral Hit S01E06 MULTi 1080p WEB H265-TyHD", "saison_num": 1, "saison_ep": "S01E06", "resolution": "1080P", "langue": "MULTI", "reste": "S01E06 MULTi 1080p WEB H265-TyHD"}}]}};
+
+            function filtrerMedias() {
+                const input = document.getElementById('searchInput').value.toLowerCase();
+                const cards = document.querySelectorAll('#mediaGrid .card');
+                
+                cards.forEach(card => {
+                    const titleData = card.getAttribute('data-title');
+                    if (titleData.includes(input)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+
+            function ouvrirPopup(index) {
+                const data = seriesData[index];
+                document.getElementById('modalTitle').innerText = data.titre_tmdb;
+                const container = document.getElementById('modalEpisodesList');
+                container.innerHTML = '';
+
+                data.liste_ep.forEach(ep => {
+                    const inf = ep.infos;
+                    const block = document.createElement('div');
+                    block.className = 'episode-block';
+                    
+                    block.innerHTML = 
+                        '<div class="episode-header">' +
+                            '<div class="episode-title-main">🎬 ' + inf.titre_complet + '</div>' +
+                        '</div>' +
+                        '<div class="details-list">' +
+                            '<div>ℹ️ Saison / Épisode : ' + inf.saison_ep + '</div>' +
+                            '<div>💎 Nom IMDb officiel : ' + data.titre_tmdb + '</div>' +
+                            '<div>📺 Résolution : ' + inf.resolution + '</div>' +
+                            '<div>🌐 Langue : ' + inf.langue + '</div>' +
+                            '<div>⚙️ Infos complémentaires : ' + inf.reste + '</div>' +
+                        '</div>' +
+                        '<a class="btn" href="/download/' + ep.id + '">📥 Télécharger</a>';
+                        
+                    container.appendChild(block);
+                });
+
+                document.getElementById('serieModal').style.display = 'flex';
+            }
+
+            function fermerPopup() {
+                document.getElementById('serieModal').style.display = 'none';
+            }
+
+            function fermerPopupDehors(event) {
+                if (event.target.id === 'serieModal') {
+                    fermerPopup();
+                }
+            }
+        </script>
+    </body>
+    </html>
+    
